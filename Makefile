@@ -11,6 +11,7 @@ install:
 database:
 	docker-compose up -d
 
+	# FIXME: use better way to wait for mysql in docker
 	for i in $$(seq 10); \
 	do \
 		nc -z -v localhost 3307; \
@@ -20,6 +21,12 @@ database:
 			sleep 3; \
 		fi \
 	done
+	sleep 20
+
+	# while ! docker exec eleicoes_db mysqladmin --user=root --host "127.0.0.1" ping --silent &> /dev/null ; do \
+	#     echo "Waiting for database connection..."; \
+	#     sleep 2; \
+	# done
 
 	poetry run python -m scripts
 	docker-compose down
