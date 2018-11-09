@@ -5,6 +5,12 @@ install:
 	poetry install
 
 
+database:
+	docker-compose up -d
+	poetry run python -m scripts
+	docker-compose down
+
+
 init:
 	sed -i "s/{{NAME}}/$${NAME:-$$(basename $$(pwd))}/" pyproject.toml
 	sed -i "s/{{AUTHOR}}/$${AUTHOR:-$$(git config user.name) <$$(git config user.email)>}/" pyproject.toml
