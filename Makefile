@@ -1,6 +1,9 @@
 SRC := src
 
 
+.PHONY: install database lab
+
+
 install:
 	poetry install
 
@@ -18,6 +21,9 @@ init:
 
 lab:
 	poetry run jupyter lab .
+
+
+.PHONY: validate lint typecheck test clean
 
 
 validate:
