@@ -1,4 +1,5 @@
-database
+database/
+data_temp/
 
 
 # Byte-compiled / optimized / DLL files
