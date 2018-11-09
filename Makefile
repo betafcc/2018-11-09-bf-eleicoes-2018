@@ -10,6 +10,17 @@ install:
 
 database:
 	docker-compose up -d
+
+	for i in $$(seq 10); \
+	do \
+		nc -z -v localhost 3307; \
+		if [ $$? -eq 0 ]; then \
+			break; \
+		else \
+			sleep 3; \
+		fi \
+	done
+
 	poetry run python -m scripts
 	docker-compose down
 

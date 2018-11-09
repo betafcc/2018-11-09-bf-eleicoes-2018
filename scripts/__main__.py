@@ -11,7 +11,7 @@ from .util import download_if_not_exist, unzip
 def main():
     base_path = Path("./data_temp")
 
-    with create_engine("mysql+pymysql://root:@localhost/eleicoes").connect() as con:
+    with create_engine("mysql+pymysql://root:@localhost:3307/eleicoes").connect() as con:
         for table in [
             # candidatos
             "consulta_cand",
