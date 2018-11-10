@@ -1,5 +1,5 @@
-database/
-temp/
+tables/**/*.csv
+tables/**/*.zip
 
 
 # Byte-compiled / optimized / DLL files

@@ -1,4 +1,4 @@
 ```sh
 make install
-make database
+make tables
 ```
