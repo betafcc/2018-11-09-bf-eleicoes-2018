@@ -9,9 +9,11 @@ from .util import download_if_not_exist, unzip
 
 
 def main():
-    base_path = Path("./data_temp")
+    base_path = Path("./downloaded_data")
 
-    with create_engine("mysql+pymysql://root:@localhost:3307/eleicoes").connect() as con:
+    with create_engine(
+        "mysql+pymysql://root:@localhost:3307/eleicoes"
+    ).connect() as con:
         for table in [
             # candidatos
             "consulta_cand",
@@ -19,8 +21,10 @@ def main():
             "consulta_coligacao",
             "consulta_vagas",
             "motivo_cassacao",
-            # eleitorado
-            "perfil_eleitorado",
+
+            # # eleitorado
+            # "perfil_eleitorado",
+
             # resultados
             "votacao_candidato_munzona",
             "votacao_partido_munzona",
@@ -28,16 +32,17 @@ def main():
             url = f"http://agencia.tse.jus.br/estatistica/sead/odsele/{table}/{table}_2018.zip"
             generic(con=con, table=table, base_path=base_path, url=url)
 
-        # weird url special case
-        table = "perfil_eleitor_deficiente"
-        url = "http://agencia.tse.jus.br/estatistica/sead/odsele/perfil_eleitor_deficiente/perfil_eleitor_deficiencia_2018.zip"
-        generic(con=con, table=table, base_path=base_path, url=url)
-
-        rmtree(base_path)
+        # # weird url special case
+        # table = "perfil_eleitor_deficiente"
+        # url = "http://agencia.tse.jus.br/estatistica/sead/odsele/perfil_eleitor_deficiente/perfil_eleitor_deficiencia_2018.zip"
+        # generic(con=con, table=table, base_path=base_path, url=url)
 
 
 def generic(*, con, table, base_path, url):
-    zip_file = Path(base_path) / table / f"{table}_2018.zip"
+    base_path = Path(base_path)
+    table_path = base_path / table
+    temp_path = table_path / "temp"
+    zip_file = temp_path / f"{table}_2018.zip"
 
     print()
     print()
@@ -53,6 +58,9 @@ def generic(*, con, table, base_path, url):
     print()
     print()
     unzip(zip_file)
+    for file in temp_path.iterdir():
+        if file.suffix == ".pdf":
+            file.rename(table_path / file.name)
 
     print()
     print()
@@ -72,11 +80,16 @@ def generic(*, con, table, base_path, url):
     print()
     print("Adding to database")
     _ldf = len(df)
-    _range = list(range(0, _ldf, 1000))
+    _range = list(range(0, _ldf, 5000))
     _slices = list(map(slice, _range, _range[1:] + [_ldf + 1]))
 
     for s in tqdm(_slices):
-        df.iloc[s].to_sql(table, con=con, index=None, if_exists='append')
+        df.iloc[s].to_sql(table, con=con, index=None, if_exists="append")
+
+    print()
+    print()
+    print("Cleaning temp")
+    rmtree(temp_path)
 
     print()
     print()
