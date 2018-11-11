@@ -1,6 +1,9 @@
 tables/**/*.csv
 tables/**/*.zip
 
+maps/*
+!maps/*.json
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

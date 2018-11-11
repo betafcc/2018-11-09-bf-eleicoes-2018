@@ -38,6 +38,34 @@ $(foreach table,$(tables_names),\
 )
 # ========
 
+
+# ===== This section prepares the maps ====
+.PHONY: maps
+
+maps: maps/br_municipios.topo.json
+
+maps/br_municipios.topo.json: maps/BRMUE250GC_SIR.shp
+	@echo converting to topojson
+	mapshaper snap $^ \
+		-rename-layers municipios \
+		-simplify 1% -filter-islands remove-empty min-area=1e8 \
+		-o format=topojson $@
+
+.SECONDARY: maps/BRMUE250GC_SIR.shp
+
+maps/BRMUE250GC_SIR.shp: maps/br_municipios.zip
+	unzip -o $^ -d $(shell dirname $@)
+	touch $@
+
+.INTERMEDIATE: maps/br_municipios.zip
+
+maps/br_municipios.zip:
+	mkdir -p $(shell dirname $@)
+	wget -O $@ \
+		'ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2017/Brasil/BR/br_municipios.zip'
+# ========
+
+
 init:
 	sed -i "s/{{NAME}}/$${NAME:-$$(basename $$(pwd))}/" pyproject.toml
 	sed -i "s/{{AUTHOR}}/$${AUTHOR:-$$(git config user.name) <$$(git config user.email)>}/" pyproject.toml
