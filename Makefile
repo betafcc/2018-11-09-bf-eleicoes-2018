@@ -8,9 +8,35 @@ install:
 	poetry install
 
 
-tables:
-	poetry run python -m scripts
+# ===== This section prepares the data tables ====
+tables_names := consulta_cand bem_candidato consulta_coligacao \
+	consulta_vagas motivo_cassacao votacao_candidato_munzona \
+	votacao_partido_munzona
+table_url = http://agencia.tse.jus.br/estatistica/sead/odsele/$(1)/$(1)_2018.zip
+table_zip_file = tables/$(1)/$(1)_2018.zip
 
+
+.PHONY: tables
+
+
+tables: $(foreach table,$(tables_names),$(call table_zip_file,$(table)))
+
+
+# $(1): table zip file
+# $(2): table url
+define PREPARE_TABLE_RULE
+$(1):
+	mkdir -p $(shell dirname $(1))
+	wget -O $(1) $(2)
+	unzip -o -d $(shell dirname $(1)) $(1)
+endef
+$(foreach table,$(tables_names),\
+	$(eval $(call PREPARE_TABLE_RULE,\
+					$(call table_zip_file,$(table)),\
+					$(call table_url,$(table))\
+	))\
+)
+# ========
 
 init:
 	sed -i "s/{{NAME}}/$${NAME:-$$(basename $$(pwd))}/" pyproject.toml
